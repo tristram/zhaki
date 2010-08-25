@@ -1,0 +1,13 @@
+This project uses Ruby 1.9.  It has been available for ages and this
+is not yet a production-ready project.  When and if, I'll assess the
+situation and see if requiring 1.9 is necessary and reasonable.
+
+This project uses Ubuntu 10.04 (specifically Gnome with a Bonobo
+layer).
+For the code to work, you need Assistive Technologies turned on.
+System -> Preferences -> Assistive Technologies ->
+    select 'Enable assistive technologies'
+
+You need gcc, so install the build-essential package.
+Also the pkg-config package.
+
