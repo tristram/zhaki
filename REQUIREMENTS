@@ -7,6 +7,7 @@ layer).
 For the code to work, you need Assistive Technologies turned on.
 System -> Preferences -> Assistive Technologies ->
     select 'Enable assistive technologies'
+This requires a re-login to fully take effect.
 
 You need gcc, so install the build-essential package.
 Also the pkg-config package.

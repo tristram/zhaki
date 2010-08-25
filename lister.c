@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <cspi/spi.h>
 
@@ -7,6 +8,7 @@ static void list_applications();
 static void check_result( char* failure_message );
 static void enumerate_desktop();
 static void enumerate_children( Accessible* parent );
+static SPIBoolean exception_handler( SPIException* err, SPIBoolean is_fatal );
 static void describe_child( int slot, Accessible* child );
 
 int main( int argc, char** argv ) {
@@ -52,24 +54,58 @@ static void enumerate_desktop() {
 
 static void enumerate_children( Accessible* parent ) {
     int                     child_count;
+    SPIExceptionHandler     handler;
     Accessible*             child;
 
     child_count = Accessible_getChildCount( parent );
     if ( child_count == 0 ) {
         printf( "The Desktop has no children!\n" );
-        printf( "Have you rebooted after enabling Assistive Technologies?\n" );
+        printf( "Have you re-logged in after enabling Assistive Technologies?\n" );
         exit( 1 );
     }
-    
+
+    handler = exception_handler;
+    if ( ! SPI_exceptionHandlerPush(&handler) ) {
+        printf( "Failed to add an ExceptionHandler.\n" );
+        exit( 1 );
+    }
+
     for ( int i = 0; i < child_count; ++i ) {
         child = Accessible_getChildAtIndex( parent, i );
         describe_child( i, child );
         Accessible_unref( child );
     }
+
+    SPI_exceptionHandlerPop();
+}
+
+static SPIBoolean exception_handler( SPIException* err, SPIBoolean is_fatal ) {
+    char*   description;
+
+    // We wish to swallow a non-fatal error...
+    if ( is_fatal )
+        return FALSE;       // We haven't dealt with it.
+
+    // ...which has a specific description.
+    description = SPIException_getDescription( err );
+    result = strcmp( description, "IDL:omg.org/CORBA/COMM_FAILURE:1.0" );
+    SPI_freeString( description );
+
+    if ( result != 0 )
+        return FALSE;       // We haven't dealt with it.
+    else
+        return TRUE;        // We have dealt with it -- ie ignore it.
 }
 
 static void describe_child( int slot, Accessible* child ) {
-    char* name = Accessible_getName( child );
+    char*       name;
+
+    if ( child == NULL ) {
+        printf( "App %2d is missing (NULL).\n", slot );
+        return;
+    }
+
+    name = Accessible_getName( child );
     printf( "App %2d: '%s'\n", slot, name );
     SPI_freeString( name );
 
