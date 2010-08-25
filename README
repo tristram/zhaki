@@ -1,0 +1,17 @@
+The Zhaki project aims to provide a GUI testing tool.
+
+It is inspired by WindowLicker, but is not tied to the Java VM.
+Instead it is built on AT-SPI, the accessibility layer developed by
+the Gnome project.  Initially it is restricted to Ruby on Gnome, but
+the AT-SPI layer is intended to become cross-platform, and other
+language bindings should be feasible.
+
+The other main difference to WindowLicker is that using AT-SPI should
+allow Zhaki to use an event-driven model, rather than a polling model.
+(Polling is usually a poor way to handle concurrency.)
+
+This will be a voyage of discovery: I do not have any experience of
+using AT-SPI, and it currently appears to be in a state of flux.  The
+CORBA layer (Bonobo) underpinning it is being replaced by D-Bus.  I am
+developing on Ubuntu 10.04, where Bonobo is still being used, so shall
+target the Bonobo version until 10.10 comes out.
