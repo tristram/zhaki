@@ -1,14 +1,20 @@
-This project uses Ruby 1.9.  It has been available for ages and this
-is not yet a production-ready project.  When and if, I'll assess the
+This project is being developed using Ruby 1.9.  This version of Ruby
+has been available for ages and this project is not yet production-
+ready, so using what is technically a development release is not an
+issue.  When and if Zhaki becomes production-ready, I'll reassess the
 situation and see if requiring 1.9 is necessary and reasonable.
 
-This project uses Ubuntu 10.04 (specifically Gnome with a Bonobo
-layer).
+This project is being developed on Ubuntu 10.04 (the key bit being
+Gnome with a Bonobo layer).
+
 For the code to work, you need Assistive Technologies turned on.
 System -> Preferences -> Assistive Technologies ->
     select 'Enable assistive technologies'
 This requires a re-login to fully take effect.
 
 You need gcc, so install the build-essential package.
-Also the pkg-config package.
+Also the libatspi-dev package.
+
+(There may be other requirements.  When I get a chance, I will test it
+out on a clean (probably VM) system.)
 
