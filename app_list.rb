@@ -3,7 +3,9 @@
 require "lib/application_list"
 
 list = ApplicationList.new
-list.count.times do |i|
+i = 0
+while ( name = list.next )
+    i += 1
     number = sprintf( "%2d", i )
-    puts "App #{number}: #{list.next}"
+    puts "App #{number}: #{name}"
 end

@@ -10,20 +10,22 @@ typedef struct {
     int                 child_count;
     SPIExceptionHandler handler;
     int                 next;
+    Accessible*         child;
+    int                 scanning_child;
+    int                 grandchild_count;
+    int                 current_grandchild;
 } List;
 
 static void initialize( List* lp );
 static void check_result( List* lp, char* error_message );
 static void closedown( List* lp );
 static SPIBoolean exception_handler( SPIException* err, SPIBoolean is_fatal );
-static int count( List* lp );
 static VALUE next( List* lp );
 static void free_structure( List* lp );
 static VALUE allocate_structure( VALUE class_name );
 static List* retrieve_structure( VALUE self );
 static VALUE wrap_initialize( VALUE self );
 static VALUE wrap_closedown( VALUE self );
-static VALUE wrap_count( VALUE self );
 static VALUE wrap_next( VALUE self );
 
 // C functions
@@ -59,6 +61,8 @@ static void check_result( List* lp, char* error_message ) {
 }
 
 static void closedown( List* lp ) {
+    if ( lp->scanning_child )
+        Accessible_unref( lp->child );
     if ( lp->handler )
         SPI_exceptionHandlerPop();
     if ( lp->desktop )
@@ -86,31 +90,46 @@ static SPIBoolean exception_handler( SPIException* err, SPIBoolean is_fatal ) {
         return TRUE;        // We have dealt with it -- ie ignore it.
 }
 
-static int count( List* lp ) {
-    return lp->child_count;
-}
-
 // C functions with knowledge of Ruby
 
 static VALUE next( List* lp ) {
-    Accessible*             child;
+    Accessible*             grandchild;
+    int                     role;
     VALUE                   name;
 
-    if ( lp->next >= lp->child_count )
-        name = rb_str_new2( "no more apps" );
-    else {
-        child = Accessible_getChildAtIndex( lp->desktop, lp->next );
-        if ( child == NULL )
-            name = rb_str_new2( "missing (NULL)" );
-        else {
-            char* child_name = Accessible_getName( child );
-            name = rb_str_new2( child_name );
-            SPI_freeString( child_name );
+    if ( lp->scanning_child ) {
+        if ( lp->current_grandchild < lp->grandchild_count ) {
+            grandchild = Accessible_getChildAtIndex( lp->child, lp->current_grandchild );
+            role = Accessible_getRole( grandchild );
+            if ( role == SPI_ROLE_FRAME ) {
+                char* frame_name = Accessible_getName( grandchild );
+                name = rb_str_new2( frame_name );
+                SPI_freeString( frame_name );
+                Accessible_unref( grandchild );
+                ++lp->current_grandchild;
+                return name;
+            } else {
+                Accessible_unref( grandchild );
+                ++lp->current_grandchild;
+                return next( lp );  // This may well overflow.
+            }
         }
-        Accessible_unref( child );
-        ++lp->next;
+        lp->scanning_child = FALSE;
+        Accessible_unref( lp->child );
     }
-    return name;
+
+    if ( lp->next >= lp->child_count )
+        return Qnil;
+
+    lp->child = Accessible_getChildAtIndex( lp->desktop, lp->next );
+    ++lp->next;
+    if ( lp->child == NULL )
+        return next( lp );      // We presume that we won't run out of stack.
+
+    lp->scanning_child = TRUE;
+    lp->grandchild_count = Accessible_getChildCount( lp->child );
+    lp->current_grandchild = 0;
+    return next( lp );
 }
 
 // Memory handling
@@ -149,11 +168,6 @@ static VALUE wrap_closedown( VALUE self ) {
     return Qnil;
 }
 
-static VALUE wrap_count( VALUE self ) {
-    List* lp = retrieve_structure( self );
-    return INT2FIX( count(lp) );
-}
-
 static VALUE wrap_next( VALUE self ) {
     List* lp = retrieve_structure( self );
     return next( lp );
@@ -166,6 +180,5 @@ void Init_application_list() {
     rb_define_alloc_func( list, allocate_structure );
     rb_define_method( list, "initialize", wrap_initialize, 0 );
     rb_define_method( list, "closedown", wrap_closedown, 0 );
-    rb_define_method( list, "count", wrap_count, 0 );
     rb_define_method( list, "next", wrap_next, 0 );
 }
