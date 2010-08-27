@@ -15,6 +15,11 @@ This requires a re-login to fully take effect.
 You need gcc, so install the build-essential package.
 Also the libatspi-dev package.
 
+You need gtk2.rb.  This one is more difficult, as the packages
+provided with Ubuntu assume Ruby 1.8.  I've compiled and installed it
+from source.  (ruby-gtk2-0.19.3.tar.gz from
+http://ruby-gnome2.sourceforge.jp)
+
 (There may be other requirements.  When I get a chance, I will test it
 out on a clean (probably VM) system.)
 

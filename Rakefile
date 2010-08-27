@@ -8,7 +8,7 @@ task :test => [:build] do
 end
 
 desc "Build C extension."
-task :build => ["tmp", "lib", "lib/application_list.so"]
+task :build => ["tmp", "lib", "lib/application_driver.so"]
 
 file "tmp" do
     directory "tmp"
@@ -31,7 +31,7 @@ file "lib32" do
     directory "lib32"
 end
 
-file "lib/application_list.so" => ["ext/application_list.c"] do |target|
+file "lib/application_driver.so" => ["ext/application_driver.c"] do |target|
     basename = File.basename( target.name, ".so" )
     rm( Dir["tmp/*"] )
     cp( target.prerequisites, "tmp" )
