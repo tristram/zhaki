@@ -1,0 +1,19 @@
+This is a list of things we are currently not handling.
+
+(Some of them may not need handling, but require testing to prove that
+it is safe to not do so.)
+
+* The application name passed into the ApplicationDriver.new call has
+to be a String.  There is no support for Duck Typing.
+
+* If the listener is only effective once the SPI main loop is running
+(which seems reasonable, otherwise events would have to be queued up
+somewhere) then we have a hole in our application detection.  It could
+start after we look on the Desktop, and before we start the loop.
+
+* Timeout if the app doesn't appear.
+
+* Not tidying up correctly when raise an exception.
+
+* Should add '-std=c99' to CFLAGS used by mkmf
+
