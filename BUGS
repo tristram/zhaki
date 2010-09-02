@@ -17,3 +17,6 @@ start after we look on the Desktop, and before we start the loop.
 
 * Not initializing or destroying the mutex and condition pthread
 objects.  (But it still works!?)
+
+* Sample apps require ruby-gtk2, which is unnecessary.  Replace with
+(C?) generic versions.

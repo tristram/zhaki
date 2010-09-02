@@ -44,11 +44,3 @@ file "lib/application_driver.so" => ["ext/application_driver.c"] do |target|
     sh "make -C tmp"
     cp( "tmp/#{basename}.so", "lib" )
 end
-
-
-desc "Build stand-alone C lister."
-task :build_lister => "lister"
-
-file "lister" => "lister.c" do
-    sh "gcc -Wall -std=c99 lister.c -o lister $(pkg-config --cflags --libs libspi-1.0 cspi-1.0)"
-end
