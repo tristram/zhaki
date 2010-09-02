@@ -11,9 +11,9 @@ to be a String.  There is no support for Duck Typing.
 somewhere) then we have a hole in our application detection.  It could
 start after we look on the Desktop, and before we start the loop.
 
-* Timeout if the app doesn't appear.
-
 * Not tidying up correctly when raise an exception.
 
 * Should add '-std=c99' to CFLAGS used by mkmf
 
+* Not initializing or destroying the mutex and condition pthread
+objects.  (But it still works!?)
